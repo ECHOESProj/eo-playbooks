@@ -17,7 +17,6 @@
       - python3-virtualenv
       - binutils
       - containerd
-      - docker.io
       - netcdf-bin
       - libproj-dev
       - gdal-bin

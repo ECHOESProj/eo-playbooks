@@ -88,6 +88,18 @@ Follow [these instructions](https://creodias.eu/-/how-to-generate-ec2-credential
 to write to an S3 compatible bucket on CREODIAS and populate *s3_aws_access_key_id* and *s3_aws_secret_access_key*, 
 in group_vars/all, with the credentials that have been generated.
 
+      openstack ec2 credentials list
+
+
+```text
++----------------------------------+----------------------------------+----------------------------------+----------------------------------+
+| Access                           | Secret                           | Project ID                       | User ID                          |
++----------------------------------+----------------------------------+----------------------------------+----------------------------------+
+| ******************************** | ******************************** | ******************************** | ******************************** |
++----------------------------------+----------------------------------+----------------------------------+----------------------------------+
+```
+
+
 ### Jupyter Lab password
 
 Run the following Python code to generate the password:
@@ -181,7 +193,6 @@ When using [deployment keys](https://docs.github.com/en/developers/overview/mana
 use the "never" tag, e.g.
 
     ansible-playbook -i hosts site.yml --tags all,never
-
 
 ## Run using Vagrant
 
