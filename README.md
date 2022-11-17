@@ -88,8 +88,22 @@ Follow [these instructions](https://creodias.eu/-/how-to-generate-ec2-credential
 to write to an S3 compatible bucket on CREODIAS and populate *s3_aws_access_key_id* and *s3_aws_secret_access_key*, 
 in group_vars/all, with the credentials that have been generated.
 
+### Create an virtual environment and install openstackclient
+      virtualenv openstackclient
+      source activate openstackclient
+      pip install --upgrade pip
+      pip install python-openstackclient
+
+Follow [the instructions](https://creodias.eu/-/how-to-generate-ec2-credentials-?inheritRedirect=true&redirect=%2Ffaq-s3) and download
+the shell script.
+The following is a summary of these instructions:
+
+Remove the space in the file name and run the following:
+      . cloud_25035_project_with_eo-openrc.sh
+      openstack ec2 credentials create
       openstack ec2 credentials list
 
+This will generate the Access and Secret keys:
 
 ```text
 +----------------------------------+----------------------------------+----------------------------------+----------------------------------+
@@ -98,7 +112,10 @@ in group_vars/all, with the credentials that have been generated.
 | ******************************** | ******************************** | ******************************** | ******************************** |
 +----------------------------------+----------------------------------+----------------------------------+----------------------------------+
 ```
+The values are hidden here.
 
+"Access" corresponds to "s3_aws_access_key_id" in group_vars/all and  
+"Secret" corresponds to "s3_aws_secret_access_key"
 
 ### Jupyter Lab password
 
