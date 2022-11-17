@@ -1,0 +1,94 @@
+# Jupter Lab
+
+- name: Ensure notebooks dir exists
+  file:
+    path: notebooks
+    state: directory
+
+- name: Ensure /opt/jupyterlab/etc/systemd exists
+  become: yes
+  become_method: sudo
+  become_user: root
+  file:
+    path: /opt/jupyterlab/etc/systemd
+    state: directory
+    owner: root
+    group: root
+    mode: '0644'
+    recurse: yes
+
+- name: Ensure ~/.jupyter directory exists
+  become: yes
+  file:
+    owner: '{{ ansible_user_id }}'
+    group:  '{{ ansible_user_id }}'
+    path: '{{ ansible_env.HOME }}/.jupyter'
+    state: directory
+    mode: '0777'
+    recurse: yes
+
+- name: Copy keys over for https
+  copy:
+    src: '{{ item }}'
+    dest: '{{ ansible_env.HOME }}/.jupyter/{{ item }}'
+    mode: '0600'
+  with_items:
+    - jupyter.key
+    - jupyter.pem
+
+- name: Copy Jupyter config file over
+  ansible.builtin.template:
+    src: jupyter_notebook_config.py
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    dest: '{{ ansible_env.HOME }}/.jupyter/jupyter_notebook_config.py'
+    remote_src: no
+    mode: '0777'
+
+- name: Ensure jupyterlab.service file exists
+  become: yes
+  become_method: sudo
+  become_user: root
+  ansible.builtin.template:
+    src: jupyterlab.service
+    dest: '/etc/systemd/system/jupyterlab.service'
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    remote_src: no
+    mode: '0644'
+
+- name: Enable service jupyterlab.service, and not touch the state
+  become: yes
+  become_method: sudo
+  become_user: root
+  ansible.builtin.service:
+    name: jupyterlab
+    enabled: yes
+
+- name: Start service jupyterlab, if not started
+  become: yes
+  become_method: sudo
+  become_user: root
+  ansible.builtin.service:
+    name: jupyterlab
+    state: started
+
+
+#- name: "Add nodejs apt key"
+#  become: true
+#  apt_key:
+#    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+#    state: present
+#
+#- name: "Add nodejs 17.x ppa for apt repo"
+#  become: true
+#  apt_repository:
+#    repo: deb https://deb.nodesource.com/node_17.x focal main
+#    update_cache: yes
+#
+#- name: "Install nodejs"
+#  become: true
+#  apt:
+#    update_cache: yes
+#    name: nodejs
+#    state: present

@@ -1,0 +1,6 @@
+service: 'peps'
+s3_endpoint_url_local: 'http://127.0.0.1:9000'
+s3_endpoint_url_ext: 'http://127.0.0.1:9000'
+s3_aws_access_key_id: 'minioadmin'
+s3_aws_secret_access_key: 'minioadmin'
+config: "Config(signature_version='s3v4')"

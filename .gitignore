@@ -1,0 +1,7 @@
+.idea
+.vagrant
+*.key
+*.pem
+roles/jupyter/files/jupyter.*
+roles/common/files/github_keys/*
+nocommit

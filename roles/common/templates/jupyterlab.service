@@ -1,0 +1,12 @@
+[Unit]
+Description=JupyterLab
+After=syslog.target network.target
+
+[Service]
+User={{ ansible_env.HOME }}
+Environment="PATH=/home/{{ ansible_env.HOME }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+Environment=/etc/profile.d/eo-service.sh
+ExecStart=/home/{{ ansible_env.HOME }}/.local/bin/jupyter lab --no-browser --ip "*" --notebook-dir /home/{{ ansible_env.HOME }}/notebooks/
+
+[Install]
+WantedBy=multi-user.target

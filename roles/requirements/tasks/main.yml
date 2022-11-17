@@ -1,0 +1,57 @@
+# The requirements for developing the code on the VM
+
+- name: HOME dir
+  ansible.builtin.debug:
+    msg:
+      - "{{ ansible_env.HOME }}"
+
+- name: Ensure apt packages are installed
+  become: yes
+  become_method: sudo
+  become_user: root
+  apt:
+    name:
+      - acl
+      - python3-pip
+      - python3-gdal
+      - python3-virtualenv
+      - binutils
+      - containerd
+      - docker.io
+      - netcdf-bin
+      - libproj-dev
+      - gdal-bin
+      - libgdal-dev
+      - libnetcdf-dev
+      - libhdf5-serial-dev
+      - libproj-dev
+      - libgeos-dev
+      - proj-data
+      - proj-bin
+      - htop
+      - git
+      - gpg-agent
+      - nano
+    state: latest
+    force_apt_get: yes
+    update_cache: yes
+
+- name: Copy requirements from the local to remote host
+  copy:
+    src: requirements.txt
+    dest: /tmp/requirements.txt
+
+- name: Install Python requirements using PIP
+  pip:
+    requirements: /tmp/requirements.txt
+    executable: pip3
+#    state: forcereinstall
+
+- name: Ensure packages are installed from Git
+  pip:
+    name: '{{ item }}'
+    state: latest
+    executable: pip3
+  loop:
+    - git+https://github.com/dcs4cop/xcube.git
+    - git+https://github.com/dcs4cop/xcube-sh.git

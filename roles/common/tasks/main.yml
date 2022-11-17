@@ -1,0 +1,133 @@
+
+- name: Print ansible_env.HOME
+  ansible.builtin.debug:
+    msg:
+    -  '{{ ansible_env.HOME }}'
+
+- name: Print location of id_rsa
+  ansible.builtin.debug:
+    msg:
+    -  '{{ ansible_env.HOME }}/.ssh/id_rsa'
+
+# Only required when using deploy keys
+- name: Ensure ~/.ssh/config file exists
+  ansible.builtin.template:
+    src: config
+    dest: '{{ ansible_env.HOME }}/.ssh/config'
+    remote_src: no
+    mode: '0600'
+  tags:
+  - never
+  - deploykey
+
+# Only required when using deploy keys
+- name: Ensure ssh key exists
+  copy:
+    src: 'github_keys/{{ item }}'
+    dest: '{{ ansible_env.HOME }}/.ssh/{{ item }}'
+    remote_src: no
+    mode: '0600'
+  loop:
+    - eo_io_rsa
+    - eoian_rsa
+    - eo_custom_scripts_rsa
+    - eo_processors_rsa
+    - eo_websockets_server_rsa
+    - eo_stack_rsa
+    - eo_notebooks_rsa
+  tags:
+    - never
+    - deploykey
+
+- name: Ensure github.com is a known host
+  lineinfile:
+    dest: '{{ ansible_env.HOME }}/.ssh/known_hosts'
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    regexp: "^github\\.com"
+
+- name: Ensure group "docker" exists with correct gid
+  become: yes
+  become_method: sudo
+  become_user: root
+  ansible.builtin.group:
+    name: docker
+    state: present
+    gid: 120
+
+- name: Print username
+  ansible.builtin.debug:
+    msg:
+    -  '{{ ansible_user_id }}'
+
+- name: Add remote user to "docker" group
+  become: yes
+  become_method: sudo
+  become_user: root
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: yes
+
+- name: Ensure dev dir exists
+  file:
+    path: echoes-dev
+    state: directory
+
+- name: Ensure /data exists
+  become: yes
+  become_method: sudo
+  become_user: root
+  file:
+    path: /data/
+    state: directory
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    mode: '0777'
+    recurse: yes
+
+- name: Ensure eo-service.sh is copied across
+  become: yes
+  become_method: sudo
+  become_user: root
+  ansible.builtin.template:
+    src: eo-service.sh
+    dest: /etc/profile.d/eo-service.sh
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    remote_src: no
+    mode: '0755'
+
+- name: Ensure /etc/environment file is copied across
+  become: yes
+  ansible.builtin.template:
+    src: environment
+    dest: /etc/
+    remote_src: no
+    mode: '0644'
+
+- name: Ensure eo-service.sh is copied across
+  become: yes
+  become_method: sudo
+  become_user: root
+  ansible.builtin.template:
+    src: env_file
+    dest: '{{ ansible_env.HOME }}/env_file'
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    remote_src: no
+    mode: '0755'
+
+- name: Add eo-run alias to .bashrc
+  ansible.builtin.lineinfile:
+    path: '{{ ansible_env.HOME }}/.bashrc'
+    line: "alias eo-run='docker run --env-file={{ ansible_env.HOME }}/env_file -v /data:/data --network host'"
+
+- name: Add PYTHONPATH to .bashrc
+  ansible.builtin.lineinfile:
+    path: '{{ ansible_env.HOME }}/.bashrc'
+    line: "export PYTHONPATH='${PYTHONPATH}:{{ ansible_env.HOME }}/echoes-dev/eo-io/:{{ ansible_env.HOME }}/echoes-dev/eoian/'"
+
+- name: reset ssh connection
+  meta: reset_connection

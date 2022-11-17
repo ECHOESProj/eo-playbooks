@@ -1,0 +1,28 @@
+---
+
+- name: Common and config roles
+  hosts: all
+  roles:
+    - role: common
+
+- name: Common and config roles
+  hosts:
+    all
+  roles:
+    - role: credentials
+
+- name: Setup dev machine roles
+  hosts:
+    local
+    dev
+  roles:
+    - role: requirements
+    - role: jupyter
+  ignore_errors: yes
+
+- name: Docker roles
+  hosts: all
+  roles:
+  - role: docker
+  tags:
+   - deploy

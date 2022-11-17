@@ -1,0 +1,13 @@
+[Unit]
+Description=JupyterLab
+After=syslog.target network.target
+
+[Service]
+User={{ ansible_user_id }}
+Environment="PATH={{ ansible_env.HOME }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+Environment="PYTHONPATH=${PYTHONPATH}:{{ ansible_env.HOME }}/echoes-dev/eo-io/:{{ ansible_env.HOME }}/echoes-dev/eoian/"
+EnvironmentFile={{ ansible_env.HOME }}/env_file
+ExecStart={{ ansible_env.HOME }}/.local/bin/jupyter lab --config {{ ansible_env.HOME }}/.jupyter/jupyter_notebook_config.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,100 @@
+# Deploy the EO-Service Using Docker
+
+- name: Ensure apt packages are installed
+  become: yes
+  become_method: sudo
+  become_user: root
+  apt:
+    name:
+      - python3-pip
+      - git
+    state: latest
+    force_apt_get: yes
+    update_cache: yes
+
+- name: Install Python requirements using PIP
+  pip:
+    name:
+      - docker
+      - docker-compose
+    executable: pip3
+
+- name: Print ansible_env.HOME
+  ansible.builtin.debug:
+    msg:
+    -  '{{ ansible_env.HOME }}'
+
+- name: Checkout from Git
+  ansible.builtin.git:
+    repo: 'github-{{ item }}:ECHOESProj/{{ item }}.git'
+    dest: '{{ ansible_env.HOME }}/echoes-deploy/{{ item }}'
+    force: yes
+  loop:
+    - "eo-custom-scripts"
+    - "eo-processors"
+    - "websockets-server"
+    - "eo-stack"
+
+- name: Ensures credentials dir exists
+  file: path={{ ansible_env.HOME }}/echoes-deploy/{{ item }}/credentials state=directory
+  loop:
+    - "eo-custom-scripts"
+    - "eo-processors"
+
+- name: Copy config over to packages
+  copy:
+    src: '{{ ansible_env.HOME }}/config_eo_service.yml'
+    dest: '{{ ansible_env.HOME }}/echoes-deploy/{{ item }}/credentials/config_eo_service.yml'
+    remote_src: yes
+  loop:
+    - "eo-custom-scripts"
+    - "eo-processors"
+
+- name: Get files on remote machine
+  find:
+    paths: '{{ ansible_env.HOME }}/.ssh/'
+    patterns: '*_rsa'
+  register: ssh_files
+
+- name: Copy shh keys over to eo-custom-scripts
+  copy:
+    src: '{{ item.path }}'
+    dest: '{{ ansible_env.HOME }}/echoes-deploy/eo-custom-scripts/credentials/'
+    remote_src: yes
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    mode: '0700'
+  with_items: "{{ ssh_files.files }}"
+
+- name: Copy shh keys over to eo-processor
+  copy:
+    src: '{{ item.path }}'
+    dest: '{{ ansible_env.HOME }}/echoes-deploy/eo-processors/credentials/'
+    remote_src: yes
+    owner: '{{ ansible_user_id }}'
+    group: '{{ ansible_user_id }}'
+    mode: '0700'
+  with_items: "{{ ssh_files.files }}"
+
+- name: Build Docker image
+  community.docker.docker_image:
+    name: '{{ item }}'
+    build:
+      path: '{{ ansible_env.HOME }}/echoes-deploy/{{ item }}'
+      network: host
+    source: build
+  loop:
+    - "eo-custom-scripts"
+    - "eo-processors"
+    - "websockets-server"
+
+- name: Create a Docker volume
+  docker_volume:
+    name: el-vol
+
+- name: Run `docker-compose up`
+  community.docker.docker_compose:
+    project_src: '{{ ansible_env.HOME }}/echoes-deploy/eo-stack/'
+    env_file: '{{ ansible_env.HOME }}/env_file'
+    files:
+      - docker-compose.yml
