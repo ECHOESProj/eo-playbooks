@@ -6,8 +6,8 @@ jupyter_notebook_pass: ''
 creodias_username: ''
 creodias_password: ''
 service: 'creodias'
-s3_endpoint_url_local: 'http://data.cloudferro.com'
-s3_endpoint_url_ext: 'https://cf2.cloudferro.com:8080'
+s3_endpoint_url_local: 'http://data.cloudferro.com' # For storing the outputs in S3
+s3_endpoint_url_ext: 'https://cf2.cloudferro.com:8080' #  EO data store
 s3_aws_access_key_id: ''
 s3_aws_secret_access_key: '
 config: 'null'
