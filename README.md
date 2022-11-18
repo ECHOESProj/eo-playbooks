@@ -136,9 +136,9 @@ The Playbook copies the SSL keys across,
 [to enable HTTPS](https://jupyterhub.readthedocs.io/en/stable/getting-started/security-basics.html).
 In the Ubuntu terminal, they can be generated with:
 
-            openssl req -x509 -nodes -newkey rsa:4096 -keyout jupyter. -out jupyter.pem -sha256 -days 3650
+            openssl req -x509 -nodes -newkey rsa:4096 -keyout jupyter.key -out jupyter.pem -sha256 -days 3650
 
-The keys should be named jupyter.key and jupyter.pem and placed as follows:
+The files jupyter.key and jupyter.pem should be placed as follows:
    
       eo-playbooks/roles/jupyter/files/jupyter.key
       eo-playbooks/roles/jupyter/files/jupyter.pem
