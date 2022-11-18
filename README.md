@@ -128,7 +128,7 @@ Run the following Python code to generate the password:
 ```
 Put it in group_vars/all under jupyter_notebook_pass.
 
-#### Jupyter Lab Keys
+#### Jupyter Lab SSL Keys
 
 The Playbook installs Jupyter Lab on the development VM (but not the production).
 Jupyter Lab is accessed via the browser.
@@ -136,7 +136,7 @@ The Playbook copies the SSL keys across,
 [to enable HTTPS](https://jupyterhub.readthedocs.io/en/stable/getting-started/security-basics.html).
 In the Ubuntu terminal, they can be generated with:
 
-      openssl req -x509 -newkey rsa:4096 -keyout jupyter.pem -out jupyter.pem -sha256 -days 365
+            openssl req -x509 -nodes -newkey rsa:4096 -keyout jupyter. -out jupyter.pem -sha256 -days 3650
 
 The keys should be named jupyter.key and jupyter.pem and placed as follows:
    
