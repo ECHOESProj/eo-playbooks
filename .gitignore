@@ -2,6 +2,7 @@
 .vagrant
 *.key
 *.pem
+group_vars/all_
 roles/jupyter/files/jupyter.*
 roles/common/files/github_keys/*
 nocommit
